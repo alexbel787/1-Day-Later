@@ -19,29 +19,24 @@ public class GameManagerScript : MonoBehaviour
     public List<GameObject> zombieList;
     public List<GameObject> humanList;
     public List<GameObject> karmaPersonagesList;
-    [HideInInspector]
-    public float maxHeadProtection = .5f;
-    [HideInInspector]
-    public float maxBodyProtection = 1.5f;
-    [HideInInspector]
-    public float minShoeNoise = .6f;
-    [HideInInspector]
-    public float maxShoeNoise = 1.5f;
-    [HideInInspector]
-    public float minHumanSpeed = .5f;
-    [HideInInspector]
-    public float maxHumanSpeed = 1.1f;
-    [HideInInspector]
-    public float maxZombieAttack = 2f;
-    [HideInInspector]
-    public float maxZombieSpeed = 2f;
+
+    public const float
+        maxHeadProtection = .5f,
+        maxBodyProtection = 1.5f,
+        minShoeNoise = .6f,
+        maxShoeNoise = 1.5f,
+        minHumanSpeed = .5f,
+        maxHumanSpeed = 1.1f,
+        maxZombieAttack = 2f,
+        maxZombieSpeed = 1.2f,
+        minZombieSpeed = .56f;
 
     public NavMeshSurface navMeshSurface;
     public LayerMask obstacleVisualMask;
     public LayerMask wallsMask;
     public LayerMask roofMask;
     public LayerMask zombieMask;
-    private Cryptography cryptography = new Cryptography("*********************");
+    private Cryptography cryptography = new Cryptography("*******************************");
 
     public static GameManagerScript instance = null;
     public AssetsHolder AH;
@@ -60,11 +55,48 @@ public class GameManagerScript : MonoBehaviour
 
     private void Update()
     {
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            if (Time.timeScale == 1f) Time.timeScale = 0.1f;
+            else Time.timeScale = 1f;
+            Debug.LogError("timeScale " + Time.timeScale);
+        }
+
+        if (Input.GetKeyDown(KeyCode.S))
+        {
+            SaveGame(player.GetComponent<PlayerScript>().personage.ToString());
+        }
+
+        if (Input.GetKeyDown(KeyCode.D))
+        {
+            DeleteSave();
+            PlayerPrefs.SetInt("isCutSceneShowed", 0);
+        }
+
         if (Input.GetMouseButtonDown(0))
         {
             if (weaponButtonsAppeared) StartCoroutine(GMH.WeaponButtonsHideCoroutnie());
             if (GMH.infoMenuActive) GMH.ResetInfoMenu();
             else if (!isMenu && AH.mainMenuButton.GetComponent<Button>().interactable) GMH.InfoRayCast();
+/*            // Check if there is a touch
+            if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began)
+            {
+                // Check if finger is over a UI element
+                if (EventSystem.current.IsPointerOverGameObject(Input.GetTouch(0).fingerId))
+                {
+                    //It means clicked on panel. So we do not consider this as click on game Object. Hence returning. 
+                    //Debug.Log("Touched button and return");
+                    return;
+                }
+            }
+
+            if (EventSystem.current.IsPointerOverGameObject())
+            {
+                //It means clicked on panel. So we do not consider this as click on game Object. Hence returning. 
+                //Debug.Log("Clicked on button and return");
+                return;
+            }*/
+
         }
 
     }
@@ -102,7 +134,7 @@ public class GameManagerScript : MonoBehaviour
         if (save != null)
         {
             level = save.level;
-            SetPersonageEquipment(save);
+            if (level != 21) SetPersonageEquipment(save);
         }
         else level = 1;
 
